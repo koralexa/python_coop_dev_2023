@@ -2,6 +2,8 @@ from random import choice
 from argparse import ArgumentParser
 import os
 from urllib.request import urlretrieve
+from io import StringIO
+from cowsay import get_random_cow, cowsay
 
 parser = ArgumentParser(prog = 'Игра \"Быки и коровы\"')
 
@@ -36,19 +38,22 @@ def gameplay(ask: callable, inform: callable, words: list[str]) -> int:
     attemps += 1
   print('Игра окончена, вы угадали слово за ', attemps, ' попыток')
 
+def cowsay_print(message):
+	print(cowsay(message.strip(), cow=get_random_cow()))
+
 def inform(format_string: str, bulls: int, cows: int) -> None:
-	print(format_string.format(bulls, cows))
+	cowsay_print(format_string.format(bulls, cows))
 
 def ask(prompt: str, valid: list[str] = None) -> str:
-  print(prompt)
+  cowsay_print(prompt)
   guess = input()
   if valid == None:
     while len(guess) != args.length:
-      print(prompt)
+      cowsay_print(prompt)
       guess = input()
   else:
     while not guess in valid:
-      print(prompt)
+      cowsay_print(prompt)
       guess = input()
   return guess
 
