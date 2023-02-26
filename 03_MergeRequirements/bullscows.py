@@ -35,7 +35,6 @@ def gameplay(ask: callable, inform: callable, words: list[str]) -> int:
     inform('Быки: {}, Коровы: {}', b, c)
     attemps += 1
   print('Игра окончена, вы угадали слово за ', attemps, ' попыток')
-  print(attemps)
 
 def inform(format_string: str, bulls: int, cows: int) -> None:
 	print(format_string.format(bulls, cows))
