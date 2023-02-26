@@ -1,16 +1,15 @@
 from random import choice
 from argparse import ArgumentParser
+import os
+from urllib.request import urlretrieve
 
-parser = ArgumentParser(
-	prog = "Bulls and cows",
-	description = "03 task",
-)
+parser = ArgumentParser(prog = 'Игра \"Быки и коровы\"')
 
-parser.add_argument("dictionary", action = "store_const", type=str,
-	help = "URL or path to the dictionary")
+parser.add_argument('dictionary', action = 'store', type=str,
+	help = 'URL или путь к словарю')
 
-parser.add_argument("length",  action = "store_const", default = "5", type = int,
-	help = "Length of the words in dictionary")
+parser.add_argument('length',  action = 'store', default = 5, type = int,
+	help = 'Длина слов в словаре')
 
 args = parser.parse_args()
 
@@ -31,10 +30,11 @@ def gameplay(ask: callable, inform: callable, words: list[str]) -> int:
   c = 0
   attemps = 0
   while c != len(set(secret)):
-    guess = ask("Введите слово: ", words)
+    guess = ask('Введите слово: ')
     b, c = bullscows(guess, secret)
-    inform("Быки: {}, Коровы: {}", b, c)
+    inform('Быки: {}, Коровы: {}', b, c)
     attemps += 1
+  print('Игра окончена, вы угадали слово за ', attemps, ' попыток')
   print(attemps)
 
 def inform(format_string: str, bulls: int, cows: int) -> None:
@@ -52,3 +52,19 @@ def ask(prompt: str, valid: list[str] = None) -> str:
       print(prompt)
       guess = input()
   return guess
+
+if os.path.exists(args.dictionary):
+  file = args.dictionary
+else:
+  file, _ = urlretrieve(args.dictionary)
+
+with open(file, 'r') as f:
+  words = []
+  for word in f.readlines():
+    word = word.strip()
+    if len(word) == args.length:
+      words.append(word)
+  if len(words) == 0:
+    print('В словаре нет слов заданной длины')
+  else:
+    gameplay(ask, inform, words)
