@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import os
 from urllib.request import urlretrieve
 from io import StringIO
-from cowsay import get_random_cow, cowsay
+from cowsay import read_dot_cow, cowsay
 
 parser = ArgumentParser(prog = 'Игра \"Быки и коровы\"')
 
@@ -38,8 +38,33 @@ def gameplay(ask: callable, inform: callable, words: list[str]) -> int:
     attemps += 1
   print('Игра окончена, вы угадали слово за ', attemps, ' попыток')
 
+custom_cow = read_dot_cow(StringIO("""
+$the_cow = <<EOC;
+
+            $thoughts
+            $thoughts
+
+          _,-""`""-~`)
+        (`~_=========\\
+        |---|___.-.__,\\
+        |        o     \ ___  _,,,,_     _.--.
+         \      `^`    /`_.-"~      `~-;`     \\
+          \_      _  .'                 `,     |
+            |`-                           \\'__/ 
+            /                      ,_       \  `'-. 
+           /    .-""~~--.            `"-,   ;_    /
+          |              \               \ /  `""`
+          \__.--'`"-.   /_               |'
+                      `"`  `~~~---..,     |
+                                    \ _.-'`-.
+                                      \       \\
+                                      '.     /
+                                        `"~"`
+EOC
+"""))
+
 def cowsay_print(message):
-	print(cowsay(message.strip(), cow=get_random_cow()))
+	print(cowsay(message.strip(), cowfile=custom_cow))
 
 def inform(format_string: str, bulls: int, cows: int) -> None:
 	cowsay_print(format_string.format(bulls, cows))
