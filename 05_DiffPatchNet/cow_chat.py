@@ -1,5 +1,5 @@
 import asyncio
-from cowsay import list_cows
+from cowsay import cowsay, list_cows
 
 clients = {}
 cows_list = list_cows()
@@ -48,8 +48,30 @@ async def chat(reader, writer):
         elif (message[0] == 'who'):
           writer.write(f"Registered users: {', '.join(clients.keys())}\n".encode())
           await writer.drain()
+        elif (message[0] == "say"):
+          if not registered:
+            writer.write("Please, register to be able to send messages\n".encode())
+            await writer.drain()
+            continue
+          if (message[1] in clients.keys()):
+            await clients[message[1]].put(f"Message from {me}:\n {cowsay.cowsay((' '.join(message[2:])).strip(), cow=me)}")
+            writer.write("Message is sent\n".encode())
+            await writer.drain()
+          else:
+            writer.write("User with this name is not registered\n".encode())
+            await writer.drain()
+        elif (message[0] == 'yield'):
+          if not registered:
+            writer.write("Please, register to be able to send messages\n".encode())
+            await writer.drain()
+            continue
+          for dst in clients.values():
+            if dst is not clients[me]:
+              await dst.put(f"Message from {me}:\n {cowsay(' '.join(message[1:]).strip(), cow=me)}")
+          writer.write("Message is sent \n".encode())
+          await writer.drain()
         else:
-          writer.write("Wrong command!\n".encode())
+          writer.write("Wrong command \n".encode())
           await writer.drain()
       elif q is receive:
         receive = asyncio.create_task(clients[me].get())
@@ -63,7 +85,6 @@ async def chat(reader, writer):
   await writer.wait_closed()
 
 async def main():
-  print(cows_list)
   server = await asyncio.start_server(chat, '0.0.0.0', 1337)
   async with server:
     await server.serve_forever()
