@@ -20,7 +20,7 @@ async def chat(reader, writer):
           continue
         elif message[0] == "login":
           if registered:
-            writer.write(("You are already registered as " + me + "\n").encode())
+            writer.write(f"You are already registered as {me}\n".encode())
           elif (message[1] in cows_list) and not registered:
             me = message[1]
             clients[me] = asyncio.Queue()
@@ -42,6 +42,12 @@ async def chat(reader, writer):
           writer.close()
           await writer.wait_closed()
           return
+        elif (message[0] == 'cows'):
+          writer.write(f"Available usernames (cows): {', '.join(cows_list)}\n".encode())
+          await writer.drain()
+        elif (message[0] == 'who'):
+          writer.write(f"Registered users: {', '.join(clients.keys())}\n".encode())
+          await writer.drain()
         else:
           writer.write("Wrong command!\n".encode())
           await writer.drain()
